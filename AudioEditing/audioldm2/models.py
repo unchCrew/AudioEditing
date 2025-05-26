@@ -14,8 +14,8 @@ from transformers import RobertaTokenizer, RobertaTokenizerFast, VitsTokenizer
 
 sys.path.append(os.getcwd())
 
-from main.configs.config import Config
-from main.library.utils import check_audioldm2
+from AudioEditing.configs.config import Config
+from AudioEditing.library.utils import check_audioldm2
 
 config = Config()
 
