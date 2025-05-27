@@ -3,6 +3,10 @@ import shutil
 import os
 from AudioEditing.gradio import *
 
+
+
+paths_for_files = sorted([os.path.abspath(os.path.join(root, f)) for root, _, files in os.walk("audios") for f in files if os.path.splitext(f)[1].lower() in (".wav", ".mp3", ".flac", ".ogg", ".opus", ".m4a", ".mp4", ".aac", ".alac", ".wma", ".aiff", ".webm", ".ac3")])
+
 def utils_tabs():
     with gr.TabItem("Audio Editing"):
         gr.Markdown("# Audio Editing Interface\nModify audio files with AudioLDM2 model.")
