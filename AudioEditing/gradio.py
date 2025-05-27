@@ -1,4 +1,5 @@
-import os, logger
+import os
+from logging import logger
 import gradio as gr
 
 
