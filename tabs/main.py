@@ -11,16 +11,57 @@ def change_audios_choices(input_audio):
     audios = sorted([os.path.abspath(os.path.join(root, f)) for root, _, files in os.walk("audios") for f in files if os.path.splitext(f)[1].lower() in (".wav", ".mp3", ".flac", ".ogg", ".opus", ".m4a", ".mp4", ".aac", ".alac", ".wma", ".aiff", ".webm", ".ac3")])
     return {"value": input_audio if input_audio != "" else (audios[0] if len(audios) >= 1 else ""), "choices": audios, "__type__": "update"}
 
+def download_url(url):
+    import yt_dlp
+
+    if not url: return gr_warning("please provide url")
+    if not os.path.exists("audios"): os.makedirs("audios", exist_ok=True)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "wav",
+                "preferredquality": "192"
+            }],
+            "quiet": True,            
+            "no_warnings": True,
+            "noplaylist": True,
+            "verbose": False,
+            "cookiefile": "assets/yt-dlp/config.txt"
+        }
+        gr_info("start".format(start="downloading music"))
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            audio_output = os.path.join("audios", re.sub(r'\s+', '-', re.sub(r'[^\w\s\u4e00-\u9fff\uac00-\ud7af\u0400-\u04FF\u1100-\u11FF]', '', ydl.extract_info(url, download=False).get('title', 'video')).strip()))
+            if os.path.exists(audio_output): shutil.rmtree(audio_output, ignore_errors=True)
+
+            ydl_opts['outtmpl'] = audio_output
+            
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: 
+            audio_output = audio_output + ".wav"
+            if os.path.exists(audio_output): os.remove(audio_output)
+            
+            ydl.download([url])
+
+        gr_info("success")
+        return [audio_output, audio_output, "success"]
 
 
 def utils_tabs():
+    with gr.TabItem("Downloading Audio"):
+        link_input = gr.Textbox(label="Download Youtube Audio")
+        download_btn = gr.Button(" Download")
+        download_btn.click(fn=download_url, inputs=link_input, outputs=None)
     with gr.TabItem("Audio Editing"):
         gr.Markdown("# Audio Editing Interface\nModify audio files with AudioLDM2 model.")
         
         # Input Section
         with gr.Group():
             gr.Markdown("**Upload Audio File**")
-            with gr.Row():
+            with gr.Row(equal_height=True):
                 drop_audio_file = gr.File(
                     label="Upload Audio",
                     file_types=[".wav", ".mp3", ".flac", ".ogg", ".opus", ".m4a", ".mp4", ".aac", ".alac", ".wma", ".aiff", ".webm", ".ac3"],
