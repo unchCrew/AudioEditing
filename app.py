@@ -4,7 +4,7 @@ import os, sys
 
 sys.path.append(os.getcwd())
 
-with gr.Blocks(title=" Audio Editing", theme="Thatguy099/Sonix") as app:
+with ae.Blocks(title=" Audio Editing", theme="Thatguy099/Sonix") as app:
     
     utils_tabs()
 
